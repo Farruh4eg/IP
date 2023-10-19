@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IP</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        width: 100vw;
+      }
+      select {
+        padding: 0.5rem;
+        font-size: 1rem;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        width: max-content;
+        gap: 0.5rem;
+        font-size: 1.2rem;
+      }
+      input {
+        padding: 0.4rem;
+      }
+      #userInput {
+        display: flex;
+        flex-direction: column;
+        margin-left: 0.5rem;
+      }
+      button {
+        padding: 0.3rem;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+      #answersSectionFirst {
+        margin-top: 2rem;
+        font-size: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        flex-wrap: wrap;
+        text-align: justify;
+        padding: 0.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <select name="typeOfTask" id="typeOfTask">
+      <option selected value="1">Находится ли два узла в одной подсети</option>
+      <option value="2">
+        Определить количество и диапазон адресов по номеру подсети и маске
+      </option>
+      <option value="3">
+        Определить маску соответствующую диапазону адресов
+      </option>
+      <option value="4">
+        Выделена сеть класса X, определить маски и количество возможных адресов
+      </option>
+    </select>
+    <section id="userInput">
+      <form name="first" id="first">
+        <label for="ipFirst">Адрес первого компьютера</label>
+        <input type="text" name="ipFirst" id="ipFirst" required />
+        <label for="ipSecond">Адрес второго компьютера</label>
+        <input type="text" name="ipSecond" id="ipSecond" required />
+        <label for="subnetMaskFirst">Маска подсети</label>
+        <input
+          type="text"
+          name="subnetMaskFirst"
+          id="subnetMaskFirst"
+          required
+        />
+        <button id="calculateFirst">Вычислить</button>
+      </form>
+      <!-- <form name="second" id="second">
+        <label for="ipFirst">Адрес первого компьютера</label>
+        <input type="text" name="ipFirst" id="ipFirst" />
+        <label for="ipSecond">Адрес второго компьютера</label>
+        <input type="text" name="ipSecond" id="ipSecond" />
+        <label for="subnetMaskFirst">Маска подсети</label>
+        <input type="text" name="subnetMaskFirst" id="subnetMaskFirst" />
+        <button>Вычислить</button>
+      </form>
+      <form name="third" id="third">
+        <label for="ipFirst">Адрес первого компьютера</label>
+        <input type="text" name="ipFirst" id="ipFirst" />
+        <label for="ipSecond">Адрес второго компьютера</label>
+        <input type="text" name="ipSecond" id="ipSecond" />
+        <label for="subnetMaskFirst">Маска подсети</label>
+        <input type="text" name="subnetMaskFirst" id="subnetMaskFirst" />
+        <button>Вычислить</button>
+      </form>
+      <form name="fourth" id="fourth">
+        <label for="ipFirst">Адрес первого компьютера</label>
+        <input type="text" name="ipFirst" id="ipFirst" />
+        <label for="ipSecond">Адрес второго компьютера</label>
+        <input type="text" name="ipSecond" id="ipSecond" />
+        <label for="subnetMaskFirst">Маска подсети</label>
+        <input type="text" name="subnetMaskFirst" id="subnetMaskFirst" />
+        <button>Вычислить</button>
+      </form> -->
+    </section>
+    <section id="answersSectionFirst">
+      <section id="pcFirst">
+        <h1>Первый компьютер</h1>
+        <p>IP: <span id="insertIpPcFirst"></span></p>
+        <p>Маска: <span id="insertMaskPcFirst"></span></p>
+        <p>Результат: <span id="insertResultPcFirst"></span></p>
+      </section>
+      <section id="pcSecond">
+        <h1>Второй компьютер</h1>
+        <p>IP: <span id="insertIpPcSecond"></span></p>
+        <p>Маска: <span id="insertMaskPcSecond"></span></p>
+        <p>Результат: <span id="insertResultPcSecond"></span></p>
+      </section>
+      <p>Ответ: <span id="insertAnswer"></span></p>
+    </section>
+    <script>
+      const ARRAY_SIZE = 4;
+
+      document
+        .getElementById('calculateFirst')
+        .addEventListener('click', findIfTwoIpsInOneSubnet);
+      document
+        .getElementById('first')
+        .addEventListener('submit', (e) => e.preventDefault());
+
+      function binaryAnd(first, second) {
+        return (parseInt(first, 2) & parseInt(second, 2)).toString();
+      }
+
+      function prependZeroes(binary, size) {
+        while (binary.length < size) {
+          binary = '0' + binary;
+        }
+        return binary;
+      }
+
+      function findIfTwoIpsInOneSubnet() {
+        const resultFirst = [];
+        const resultSecond = [];
+        const answerFieldFirst = document.getElementById('insertAnswer');
+        const textAnswer = 'номера подсетей двух IP-адресов ';
+        const firstIpDecimal = document
+          .getElementById('ipFirst')
+          .value.trim()
+          .split('.');
+        const secondIpDecimal = document
+          .getElementById('ipSecond')
+          .value.trim()
+          .split('.');
+        const maskDecimal = document
+          .getElementById('subnetMaskFirst')
+          .value.trim()
+          .split('.');
+        const firstIpToBinaryMap = firstIpDecimal.map((e) =>
+          prependZeroes((+e).toString(2), 8)
+        );
+        const secondIpToBinaryMap = secondIpDecimal.map((e) =>
+          prependZeroes((+e).toString(2), 8)
+        );
+        const subnetMaskToBinaryMap = maskDecimal.map((e) =>
+          prependZeroes((+e).toString(2), 8)
+        );
+
+        for (let i = 0; i < ARRAY_SIZE; i++) {
+          resultFirst.push(
+            binaryAnd(firstIpToBinaryMap[i], subnetMaskToBinaryMap[i])
+          );
+        }
+
+        for (let i = 0; i < ARRAY_SIZE; i++) {
+          resultSecond.push(
+            binaryAnd(secondIpToBinaryMap[i], subnetMaskToBinaryMap[i])
+          );
+        }
+
+        document.getElementById('insertIpPcFirst').textContent =
+          firstIpToBinaryMap.join('.');
+        document.getElementById('insertMaskPcFirst').textContent =
+          subnetMaskToBinaryMap.join('.');
+        document.getElementById('insertResultPcFirst').textContent =
+          resultFirst.join('.');
+        document.getElementById('insertIpPcSecond').textContent =
+          secondIpToBinaryMap.join('.');
+        document.getElementById('insertMaskPcSecond').textContent =
+          subnetMaskToBinaryMap.join('.');
+        document.getElementById('insertResultPcSecond').textContent =
+          resultSecond.join('.');
+        resultFirst.toString() == resultSecond.toString()
+          ? (answerFieldFirst.textContent = textAnswer + 'совпадают')
+          : (answerFieldFirst.textContent = textAnswer + 'НЕ совпадают');
+      }
+    </script>
+  </body>
+</html>
